@@ -1,0 +1,12 @@
+# Compiled application
+EpisodiManager.exe
+EpisodiManager
+
+# Go build/test artifacts
+*.test
+*.out
+coverage*.txt
+
+# Local application data
+library.json
+*.log
