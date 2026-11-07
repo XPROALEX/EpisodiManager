@@ -1,21 +1,24 @@
-# Episodi Manager 4.2.2
+# Episodi Manager 4.2.3
 
-Branch di versione per EpisodiManager 4.2.2 (Windows x64).
+Branch di versione 4.2.3 (Windows x64).
 
-## Novità
+## Correzione FFmpeg HTTP 404
 
-- Migliorata la selezione delle tracce audio/video in yt-dlp.
-- FFmpeg e FFprobe vengono scaricati e verificati automaticamente su Windows.
-- Finalizzazione dei file senza ricodifica: MP4 con indice fast-start; fallback MKV quando necessario.
-- Verifica automatica della traccia video e della durata.
-- Conservazione del file originale se la finalizzazione non riesce.
+La 4.2.2 puntava a un vecchio percorso Gyan che restituiva HTTP 404. La 4.2.3 usa l'asset ZIP della release FFmpeg 9.0.2 pubblicata sul mirror GitHub ufficiale GyanD/codexffmpeg.
 
-## Stato del repository
+- URL: https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip
+- SHA-256 asset: `60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba`
+- Nome archivio locale: `ffmpeg-9.0.2-essentials_build.zip`
 
-Questo branch contiene note di rilascio, documentazione e report dei test della versione 4.2.2. Il codice Go completo non è ancora pubblicato come file singoli nella radice del branch; è distribuito separatamente nel pacchetto sorgente allegato alla versione 4.2.2 in questa conversazione.
+## Stabilità download
 
-## Verifiche
+- Installazione FFmpeg serializzata per evitare gare tra job.
+- Blocco dei doppi clic e deduplicazione dei job identici ancora attivi.
 
-I test automatizzati e il test locale di finalizzazione MPEG-TS → MP4 sono superati. Non è stato verificato un download live da Dailymotion o da altri siti esterni.
+## Sorgenti
 
-StreamingCommunity resta supportato per la lettura del catalogo, non per il download. Usa il downloader soltanto con contenuti che hai il diritto o l'autorizzazione di acquisire. L'app non tenta di aggirare DRM, HTTP 403 o controlli di accesso.
+Il codice Go completo della 4.2.3 è distribuito nel pacchetto sorgente separato allegato alla versione; i singoli file Go aggiornati non sono ancora pubblicati nella radice del repository.
+
+## Test
+
+`go test ./...`, `go test -race ./...` e `go vet ./...` superati; build Windows x64 completata. Non è stato eseguito un download live del binario FFmpeg nel container, quindi il test finale va effettuato sul PC Windows.
