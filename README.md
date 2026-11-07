@@ -1,24 +1,19 @@
-# Episodi Manager 4.2.3
+# Episodi Manager 4.2.4
 
-Branch di versione 4.2.3 (Windows x64).
+Version branch for Windows x64.
 
-## Correzione FFmpeg HTTP 404
+## FFmpeg HTTP 404 fix candidate
 
-La 4.2.2 puntava a un vecchio percorso Gyan che restituiva HTTP 404. La 4.2.3 usa l'asset ZIP della release FFmpeg 9.0.2 pubblicata sul mirror GitHub ufficiale GyanD/codexffmpeg.
+The 4.2.3 used the browser download URL as its primary request. In 4.2.4, FFmpeg 9.0.2 Essentials is requested first through the GitHub Releases API asset endpoint using `Accept: application/octet-stream`, as documented by GitHub. The browser download URL remains a fallback.
 
-- URL: https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip
-- SHA-256 asset: `60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba`
-- Nome archivio locale: `ffmpeg-9.0.2-essentials_build.zip`
+- API asset: https://api.github.com/repos/GyanD/codexffmpeg/releases/assets/574302090
+- Fallback: https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip
+- SHA-256: `60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba`
 
-## Stabilità download
+HTTP errors now include the final URL and a short response excerpt to make failures diagnosable.
 
-- Installazione FFmpeg serializzata per evitare gare tra job.
-- Blocco dei doppi clic e deduplicazione dei job identici ancora attivi.
+## Tests and caveat
 
-## Sorgenti
+Go unit tests, race tests, vet and Windows x64 cross-build pass. This build environment has no DNS access, so a live download of the FFmpeg asset could not be confirmed here. The Windows client should be used to verify the download end-to-end.
 
-Il codice Go completo della 4.2.3 è distribuito nel pacchetto sorgente separato allegato alla versione; i singoli file Go aggiornati non sono ancora pubblicati nella radice del repository.
-
-## Test
-
-`go test ./...`, `go test -race ./...` e `go vet ./...` superati; build Windows x64 completata. Non è stato eseguito un download live del binario FFmpeg nel container, quindi il test finale va effettuato sul PC Windows.
+The complete updated Go source is distributed separately in the version source archive; this branch contains release documentation and metadata.

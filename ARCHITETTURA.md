@@ -1,7 +1,14 @@
-# Architettura — Episodi Manager 4.2.2
+# Architecture — Episodi Manager 4.2.4
 
-Questa pagina è il riferimento sintetico della versione 4.2.2. Il codice Go completo, con la documentazione architetturale dettagliata, è distribuito nel pacchetto sorgente separato associato a questa versione; non è ancora presente come file singoli nella radice del branch.
+## FFmpeg bootstrap
 
-La 4.2.2 usa yt-dlp per le sorgenti supportate e FFmpeg/FFprobe per unire e finalizzare i file. La finalizzazione prova MP4 con `+faststart`, verifica il risultato con FFprobe e usa MKV come fallback quando necessario. I flussi vengono rimuxati senza ricodifica.
+1. Request the FFmpeg 9.0.2 Essentials release asset through the GitHub Releases API with `Accept: application/octet-stream`.
+2. If that fails, retry using the browser download URL for the same pinned asset.
+3. Report HTTP status, final URL after redirects and a short response body excerpt.
+4. Verify the downloaded archive SHA-256 before extracting `ffmpeg.exe` and `ffprobe.exe`.
 
-StreamingCommunity resta in sola lettura catalogo. Nessuna funzionalità tenta di aggirare DRM, HTTP 403, login o altri controlli di accesso.
+## Media processing
+
+yt-dlp downloads supported formats. FFmpeg merges separate audio/video tracks and remuxes without re-encoding; MP4 fast-start is preferred and MKV is the fallback where needed. FFprobe validates the resulting video stream and duration.
+
+StreamingCommunity remains catalog-only. The app does not bypass DRM, HTTP 403 or access controls.
