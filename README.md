@@ -1,78 +1,67 @@
-# Episodi Manager 3.0 — Codice sorgente
+# Episodi Manager 4.1
 
-Applicazione desktop per Windows (e altri sistemi compatibili con Go) che mostra nel browser una piccola interfaccia locale per catalogare serie ed episodi, trovare i collegamenti diretti esposti dalle pagine, scaricare i file autorizzati e tenere uno storico locale.
+Applicazione Windows per organizzare serie ed episodi con un unico campo URL.
 
-> L'interfaccia HTML, CSS e JavaScript è incorporata direttamente in `main.go`; non servono cartelle frontend o dipendenze npm.
+## Branch di questa versione
 
-## Requisiti
+La versione 4.1 è pubblicata nel branch **`4.1`**. Il branch `main` non viene modificato da questo aggiornamento: rimane disponibile come versione precedente.
 
-- Go 1.23 o successivo.
-- Connessione Internet per analizzare le pagine e scaricare contenuti.
-- Nessuna dipendenza Go esterna: il progetto usa solo la libreria standard.
+## Supporto in questa versione
 
-Per usare il programma già compilato su Windows non serve installare Go: serve soltanto `EpisodiManager.exe`.
+- **AnimeUnity**: rilevamento tramite `info_api` a blocchi di 120 episodi e flusso di download diretto già presente nelle versioni precedenti.
+- **StreamingCommunity (catalogo)**: lettura dei dati React Server Components di Next.js (`self.__next_f.push`), estrazione delle stagioni e degli episodi pubblicati e costruzione delle pagine episodio nel formato `/titles/{id}-{slug}-streaming/watching?s={stagione}&e={episodio}`.
 
-## Avvio in sviluppo
+Per StreamingCommunity questa versione si concentra sulla catalogazione: la ricerca dei link video e il download sono disabilitati nell'interfaccia. Il sorgente fornito mostra che il player è esterno (Vidxgo) e la pagina del player restituisce HTTP 403; non viene quindi inventato un URL di download.
 
-```bash
-go run .
-```
+## Black Doves — verifica sul sorgente fornito
 
-L'app avvia un server HTTP legato esclusivamente a `127.0.0.1` su una porta locale libera e apre l'interfaccia nel browser predefinito.
+Il sorgente HTML di `https://streaming-community.moe/titles/28300-black-doves-streaming` contiene i dati Next.js con:
 
-## Test
+- ID serie `28300`, titolo `Black Doves`;
+- `numberOfSeasons = 1` e `numberOfEpisodes = 6`;
+- sei episodi nominati della stagione 1;
+- una seconda stagione provvisoria con titoli generici, che viene esclusa dai conteggi dichiarati della serie.
+
+Il catalogo mostrato dall'app per questo esempio è quindi **Stagione 1, episodi 1–6**. Il sorgente della pagina episodio conferma la rotta `watching?s=1&e=1` e l'iframe del player, ma non fornisce l'ID tecnico episodio nel catalogo iniziale.
+
+## Codice sorgente completo
+
+Il progetto completo è incluso nell'archivio [`EpisodiManager_Sorgenti_v4_1.zip`](EpisodiManager_Sorgenti_v4_1.zip). Estrai l'archivio: troverai la cartella `EpisodiManager_Source_v4_1` con `main.go`, `main_test.go`, `go.mod`, gli adattatori specifici per Windows e gli script di compilazione.
+
+## Avvio su Windows
+
+Per usare l'EXE non serve installare Python, Go o .NET: estrai il pacchetto Windows della release e avvia `EpisodiManager.exe`.
+
+## Sviluppo
+
+Requisiti: Go 1.23 o successivo.
+
+Dopo aver estratto l'archivio sorgente ed essere entrato nella cartella `EpisodiManager_Source_v4_1`:
 
 ```bash
 go test ./...
+go test -race ./...
 go vet ./...
+go run .
 ```
 
-I test coprono la lettura dei link episodio, la distinzione tra numero visibile e ID interno, l'estrazione di `window.downloadUrl`, il flusso API/player simulato e il salvataggio di un download di prova.
-
-## Compilazione Windows x64
-
-Su Windows, con Go installato, fai doppio clic su `build_windows.bat`, oppure esegui:
-
-```powershell
-$env:GOOS = "windows"
-$env:GOARCH = "amd64"
-$env:CGO_ENABLED = "0"
-go build -trimpath -ldflags="-s -w -H=windowsgui" -o EpisodiManager.exe .
-```
-
-Il file risultante è autonomo e non richiede Python o .NET.
-
-Per compilare per il sistema operativo corrente:
+Per compilare Windows x64 da Windows, esegui `build_windows.bat` nella cartella sorgente. Da shell con Go:
 
 ```bash
-go build -o EpisodiManager .
+GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -H=windowsgui" -o EpisodiManager.exe .
 ```
 
-## Struttura
+## Note tecniche
 
-- `main.go`: server locale, API interne dell'interfaccia, HTML/CSS/JavaScript e logica di scansione, analisi e download.
-- `main_test.go`: test automatici dei parser e dei flussi principali.
-- `go.mod`: modulo Go.
-- `build_windows.bat`: script per produrre l'eseguibile Windows a 64 bit.
+- `main.go`: server locale, interfaccia, API, parser AnimeUnity e parser Next.js StreamingCommunity.
+- `main_test.go`: test unitari e test HTTP simulati per entrambi gli adattatori.
+- `process_windows.go` / `process_other.go`: avvio dei processi esterni senza finestra console su Windows.
+- `CHANGELOG.md`: modifiche della versione 4.1.
+- `ARCHITETTURA.md`: descrizione del flusso applicativo.
+- `THIRD_PARTY_NOTICES.md`: attribuzioni e note sulle dipendenze di terze parti.
 
-## Flusso automatico della serie supportata
-
-1. `animeUnityParts` riconosce l'identificativo serie dall'URL.
-2. `fetchAnimeUnityEpisodes` interroga `info_api` usando intervalli di 120 episodi e registra sia il numero visualizzato sia l'ID tecnico.
-3. `resolveAnimeUnityDownload` consulta `embed-url`, apre l'URL video restituito e cerca il valore `window.downloadUrl`.
-4. `extractDownloadURLs` normalizza e valida gli URL trovati.
-5. La logica di download salva i file nella cartella scelta e aggiorna lo stato nella libreria JSON locale.
-
-Per siti con struttura diversa è presente anche un percorso generico che esamina i link della pagina e le risorse iframe/script esposte nell'HTML. La compatibilità dipende dalla struttura effettiva del sito.
-
-## Dati e privacy
-
-La libreria è salvata localmente nel profilo utente (`%APPDATA%\\EpisodiManager\\library.json` su Windows). Il server dell'interfaccia ascolta solo su `127.0.0.1`; non è un server pubblicato su Internet.
+I dati della libreria sono salvati nel profilo utente in `EpisodiManager/library.json`.
 
 ## Uso responsabile
 
-Usa il programma soltanto con contenuti che hai il diritto o l'autorizzazione di scaricare. Il progetto non ricostruisce playlist HLS/DASH, non scarica segmenti, non aggira DRM, paywall o controlli di accesso e non gestisce credenziali del browser.
-
-## Licenza
-
-Nessuna licenza open-source è stata assegnata. Prima di riutilizzare o ridistribuire il progetto, scegli e aggiungi una licenza.
+Usa l'applicazione solo per contenuti che hai il diritto o l'autorizzazione di acquisire e nel rispetto delle regole applicabili. Il parser del catalogo legge soltanto i dati esposti dalla pagina; questa versione non tenta di aggirare il blocco HTTP 403 del player.
