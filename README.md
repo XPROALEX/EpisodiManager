@@ -29,7 +29,7 @@ Il sorgente HTML fornito per `https://streaming-community.moe/titles/28300-black
 
 ## Codice sorgente
 
-Scarica `EpisodiManager_Sorgenti_v4_1_1.zip` dalla root del branch per ottenere `main.go`, test, documentazione e script di compilazione.
+Il pacchetto sorgente completo della revisione 4.1.1 è distribuito separatamente come `EpisodiManager_Sorgenti_v4_1_1.zip` nella conversazione. Il branch documenta le modifiche, i test di regressione e la procedura di build; il pacchetto contiene il codice Go completo.
 
 ## Avvio Windows
 
