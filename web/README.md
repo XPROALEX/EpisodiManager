@@ -49,3 +49,8 @@ La build statica è prodotta in `web/dist`. Il prossimo passaggio backend sarà 
 - Settings: riepilogo delle scelte locali già concordate.
 
 Questa è una base di migrazione, non una release desktop/web completa. Non sostituisce ancora la UI incorporata nel backend Go.
+
+
+## Privacy and offline presentation
+
+The UI uses system fonts only; it does not load fonts or analytics from third-party CDNs. Search inputs are submitted explicitly (Enter or the Search button), not on every keystroke.
