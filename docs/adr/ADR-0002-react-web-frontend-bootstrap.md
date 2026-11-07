@@ -25,3 +25,9 @@ Il backend Go non è ancora aggiornato in questo branch per servire `web/dist`, 
 - `npm run build`
 
 Il build locale non è stato dichiarato superato: il registro npm non è stato disponibile nell'ambiente di lavoro. GitHub Actions eseguirà i controlli con rete.
+
+
+## Follow-up stability adjustments
+
+- Search callbacks are stable and use the current query only when the user submits or opens the relevant page; typing does not issue a request for each key.
+- The visual layer relies on system fonts and does not fetch Google Fonts or other external font assets.
