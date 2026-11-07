@@ -1,8 +1,5 @@
 # Sorgenti Episodi Manager 4.2.2
 
-Archivio completo del progetto Go, inclusi `main.go`, test, documentazione, script di build Windows e file di supporto.
+Il codice sorgente Go completo è distribuito separatamente nel pacchetto sorgente della versione 4.2.2 allegato in questa conversazione. Questo branch GitHub contiene le note di rilascio e i report, ma non contiene ancora i file `main.go` e `main_test.go` aggiornati nella radice.
 
-Estrazione Windows: usare 7-Zip per aprire `EpisodiManager_Source_v4_2_2.tar.xz`.
-Dopo l'estrazione, entrare nella cartella `EpisodiManager_Source_v4_2_2`.
-
-Requisiti sviluppo: Go 1.23 o successivo. Eseguire `go test ./...` prima della compilazione.
+Requisiti di sviluppo: Go 1.23 o successivo.
