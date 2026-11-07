@@ -48,22 +48,22 @@ function App() {
     setStatus(current);
   }, []);
 
-  const loadCatalog = useCallback(async (search = query) => {
+  const loadCatalog = useCallback(async (search: string) => {
     const result = await api.catalog(search, 0, 100);
     setCatalog(result.items);
-  }, [query]);
+  }, []);
 
-  const loadWatchlist = useCallback(async (search = watchQuery) => {
+  const loadWatchlist = useCallback(async (search: string) => {
     const result = await api.watchlist(search, "");
     setWatchlist(result.items);
-  }, [watchQuery]);
+  }, []);
 
   const refreshAll = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      await Promise.all([loadStatus(), loadWatchlist()]);
-      if (view === "explore") await loadCatalog();
+      await Promise.all([loadStatus(), loadWatchlist("")]);
+      if (view === "explore") await loadCatalog("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Backend non raggiungibile");
     } finally {
@@ -81,12 +81,12 @@ function App() {
 
   useEffect(() => {
     if (view === "explore") {
-      void loadCatalog().catch((err: unknown) => {
+      void loadCatalog(query).catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Catalogo non disponibile");
       });
     }
     if (view === "watchlist") {
-      void loadWatchlist().catch((err: unknown) => {
+      void loadWatchlist(watchQuery).catch((err: unknown) => {
         setError(err instanceof Error ? err.message : "Lista non disponibile");
       });
     }
@@ -119,7 +119,7 @@ function App() {
     try {
       await api.addToWatchlist(title.id);
       setNotice(`«${title.name}» aggiunto alla tua lista.`);
-      await Promise.all([loadWatchlist(), loadCatalog()]);
+      await Promise.all([loadWatchlist(""), loadCatalog("")]);
       await loadStatus();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossibile aggiungere il titolo");
@@ -129,7 +129,7 @@ function App() {
   async function changeStatus(entry: WatchEntry, next: WatchStatus) {
     try {
       await api.updateWatchEntry(entry, next);
-      await loadWatchlist();
+      await loadWatchlist("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossibile aggiornare lo stato");
     }
@@ -152,7 +152,7 @@ function App() {
   async function toggleEpisode(entry: WatchEntry, number: string, watched: boolean) {
     try {
       await api.setEpisodeWatched(entry.id, number, watched);
-      await loadWatchlist();
+      await loadWatchlist("");
       const detailed = await api.trackerDetail(entry.id);
       setWatchlist((current) => current.map((item) => item.id === entry.id ? detailed : item));
     } catch (err) {
@@ -165,7 +165,7 @@ function App() {
     try {
       await api.removeFromWatchlist(entry.id);
       setExpandedEntry(null);
-      await Promise.all([loadWatchlist(), loadStatus()]);
+      await Promise.all([loadWatchlist(""), loadStatus()]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossibile rimuovere il titolo");
     }
