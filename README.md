@@ -1,42 +1,39 @@
-# Episodi Manager 4.1
+# Episodi Manager 4.1.1
 
 Applicazione Windows per organizzare serie ed episodi con un unico campo URL.
 
-## Branch di questa versione
+## Supporto
 
-La versione 4.1 è pubblicata nel branch **`4.1`**. Il branch `main` non viene modificato da questo aggiornamento: rimane disponibile come versione precedente.
+- **AnimeUnity**: rilevamento tramite `info_api` a blocchi di 120 episodi e flusso di download diretto già presente.
+- **StreamingCommunity (catalogo)**: lettura dei dati React Server Components di Next.js (`self.__next_f.push`), estrazione delle stagioni e degli episodi, creazione degli URL `/titles/{id}-{slug}-streaming/watching?s={s}&e={e}`.
 
-## Supporto in questa versione
+Per StreamingCommunity questa versione si concentra sulla catalogazione. Analisi dei link video e download restano disabilitati perché il player esterno Vidxgo ha restituito HTTP 403 nel sorgente condiviso. Non viene inventato un URL di download.
 
-- **AnimeUnity**: rilevamento tramite `info_api` a blocchi di 120 episodi e flusso di download diretto già presente nelle versioni precedenti.
-- **StreamingCommunity (catalogo)**: lettura dei dati React Server Components di Next.js (`self.__next_f.push`), estrazione delle stagioni e degli episodi pubblicati e costruzione delle pagine episodio nel formato `/titles/{id}-{slug}-streaming/watching?s={stagione}&e={episodio}`.
+## Correzione 4.1.1: stagioni mancanti
 
-Per StreamingCommunity questa versione si concentra sulla catalogazione: la ricerca dei link video e il download sono disabilitati nell'interfaccia. Il sorgente fornito mostra che il player è esterno (Vidxgo) e la pagina del player restituisce HTTP 403; non viene quindi inventato un URL di download.
+La 4.1.0 usava `numberOfSeasons` e `numberOfEpisodes` come limiti rigidi. Se i conteggi riepilogativi del sito erano vecchi o incompleti, veniva scartata l'ultima stagione o parte dei suoi episodi.
 
-## Black Doves — verifica sul sorgente fornito
+La 4.1.1:
+- identifica prima l'oggetto della serie, per non confondere i conteggi con quelli delle schede consigliate;
+- considera l'array `seasons` la fonte principale;
+- non tronca la scansione al raggiungimento di `numberOfEpisodes`;
+- non scarta una stagione soltanto perché supera `numberOfSeasons`;
+- filtra solo stagioni segnaposto oltre il conteggio pubblicato, quando tutte le voci hanno titoli generici e nessuna trama/immagine;
+- usa l'ordine dell'array come fallback per numeri mancanti e rimuove duplicati `SxxExx`.
 
-Il sorgente HTML di `https://streaming-community.moe/titles/28300-black-doves-streaming` contiene i dati Next.js con:
+La lettura resta limitata alle stagioni effettivamente presenti nel payload ricevuto. Se una stagione viene caricata solo tramite una chiamata API separata, occorrerà un adattatore per quell'endpoint.
 
-- ID serie `28300`, titolo `Black Doves`;
-- `numberOfSeasons = 1` e `numberOfEpisodes = 6`;
-- sei episodi nominati della stagione 1;
-- una seconda stagione provvisoria con titoli generici, che viene esclusa dai conteggi dichiarati della serie.
+## Black Doves — fixture verificata
 
-Il catalogo mostrato dall'app per questo esempio è quindi **Stagione 1, episodi 1–6**. Il sorgente della pagina episodio conferma la rotta `watching?s=1&e=1` e l'iframe del player, ma non fornisce l'ID tecnico episodio nel catalogo iniziale.
+Il sorgente HTML fornito per `https://streaming-community.moe/titles/28300-black-doves-streaming` contiene sei episodi nominati della stagione 1 e una stagione 2 composta da voci segnaposto. Il parser mostra S01E01–S01E06 e ignora la stagione 2 provvisoria.
 
-## Codice sorgente completo
+## Codice sorgente
 
-Il progetto completo è incluso nell'archivio [`EpisodiManager_Sorgenti_v4_1.zip`](EpisodiManager_Sorgenti_v4_1.zip). Estrai l'archivio: troverai la cartella `EpisodiManager_Source_v4_1` con `main.go`, `main_test.go`, `go.mod`, gli adattatori specifici per Windows e gli script di compilazione.
+Scarica `EpisodiManager_Sorgenti_v4_1_1.zip` dalla root del branch per ottenere `main.go`, test, documentazione e script di compilazione.
 
-## Avvio su Windows
+## Avvio Windows
 
-Per usare l'EXE non serve installare Python, Go o .NET: estrai il pacchetto Windows della release e avvia `EpisodiManager.exe`.
-
-## Sviluppo
-
-Requisiti: Go 1.23 o successivo.
-
-Dopo aver estratto l'archivio sorgente ed essere entrato nella cartella `EpisodiManager_Source_v4_1`:
+L'EXE non richiede Python, Go o .NET. Per compilare dai sorgenti serve Go 1.23 o successivo:
 
 ```bash
 go test ./...
@@ -45,23 +42,12 @@ go vet ./...
 go run .
 ```
 
-Per compilare Windows x64 da Windows, esegui `build_windows.bat` nella cartella sorgente. Da shell con Go:
+## File principali
 
-```bash
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -H=windowsgui" -o EpisodiManager.exe .
-```
+- `main.go`: server locale, interfaccia, API e parser.
+- `main_test.go`: test automatici e test HTTP simulati.
+- `CHANGELOG.md`: cronologia modifiche.
+- `ARCHITETTURA.md`: descrizione tecnica.
+- `THIRD_PARTY_NOTICES.md`: attribuzioni.
 
-## Note tecniche
-
-- `main.go`: server locale, interfaccia, API, parser AnimeUnity e parser Next.js StreamingCommunity.
-- `main_test.go`: test unitari e test HTTP simulati per entrambi gli adattatori.
-- `process_windows.go` / `process_other.go`: avvio dei processi esterni senza finestra console su Windows.
-- `CHANGELOG.md`: modifiche della versione 4.1.
-- `ARCHITETTURA.md`: descrizione del flusso applicativo.
-- `THIRD_PARTY_NOTICES.md`: attribuzioni e note sulle dipendenze di terze parti.
-
-I dati della libreria sono salvati nel profilo utente in `EpisodiManager/library.json`.
-
-## Uso responsabile
-
-Usa l'applicazione solo per contenuti che hai il diritto o l'autorizzazione di acquisire e nel rispetto delle regole applicabili. Il parser del catalogo legge soltanto i dati esposti dalla pagina; questa versione non tenta di aggirare il blocco HTTP 403 del player.
+AnimeUnity mantiene il flusso precedente. Il parser StreamingCommunity legge i dati esposti dalla pagina e non tenta di aggirare il blocco HTTP 403 del player.
