@@ -17,3 +17,14 @@ HTTP errors now include the final URL and a short response excerpt to make failu
 Go unit tests, race tests, vet and Windows x64 cross-build pass. This build environment has no DNS access, so a live download of the FFmpeg asset could not be confirmed here. The Windows client should be used to verify the download end-to-end.
 
 The complete updated Go source is distributed separately in the version source archive; this branch contains release documentation and metadata.
+
+
+---
+
+## Roadmap di sviluppo
+
+La roadmap di prodotto e architettura è in [ROADMAP.md](ROADMAP.md).
+Le regole di branch, versionamento e test sono in [CONTRIBUTING.md](CONTRIBUTING.md).
+La decisione sullo stack Web + Desktop è in [ADR-0001](docs/adr/ADR-0001-shared-web-desktop-architecture.md).
+L'audit dello stato effettivo del progetto al 7 novembre 2026 è in [CURRENT_STATE_AUDIT](docs/CURRENT_STATE_AUDIT_2026-11-07.md).
+
