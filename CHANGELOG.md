@@ -1,3 +1,12 @@
+## 4.2.2 — miglioramento download e finalizzazione media
+
+- Selezione delle migliori tracce video/audio separate con yt-dlp (`bv+ba/b`).
+- Download verificato di FFmpeg/FFprobe su Windows x64.
+- Rimux MP4 senza ricodifica con `+faststart` e fallback MKV quando necessario.
+- Verifica della traccia video e della durata tramite FFprobe.
+- Conservazione del file originale se la finalizzazione non riesce.
+- Test d'integrazione locale MPEG-TS → MP4 superato; non è stato eseguito un download live da Dailymotion.
+
 # Changelog
 
 ## 4.1.1 — correzione stagioni mancanti
