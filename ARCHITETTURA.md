@@ -1,27 +1,31 @@
-# Architettura — Episodi Manager 4.1
+# Architettura — Episodi Manager 4.1.1
 
-## Avvio e interfaccia
+## Avvio
 
-`main()` carica la libreria JSON, avvia un server HTTP solo su `127.0.0.1` e apre il browser. L'interfaccia HTML/CSS/JavaScript è incorporata in `main.go`.
+`main()` carica la libreria JSON, avvia un server HTTP esclusivamente su `127.0.0.1` e apre il browser. L'interfaccia HTML/CSS/JavaScript è incorporata in `main.go`.
 
 ## AnimeUnity
 
 `handleScanSeries` → `animeUnityParts` → `fetchAnimeUnityEpisodes`.
 
-La scansione utilizza `info_api` a blocchi da 120 episodi, mantenendo distinti numero visibile e ID interno. Il flusso preesistente di analisi e download rimane invariato.
+La scansione usa `info_api` a blocchi da 120 episodi, mantenendo separati numero visibile e ID tecnico. Il flusso preesistente di analisi e download è invariato.
 
-## StreamingCommunity — lettura del catalogo
+## StreamingCommunity — catalogo
 
 `handleScanSeries` → `isStreamingCommunityURL` → `fetchStreamingCommunityEpisodes`.
 
-1. `extractNextFlightPayload` individua i chunk `self.__next_f.push([1, ...])` emessi da Next.js e decodifica le stringhe JSON.
-2. `extractStreamingCommunityFlightCatalog` individua l'oggetto della serie, i metadati `numberOfSeasons` / `numberOfEpisodes` e l'array `seasons`.
-3. Il parser costruisce una voce per ogni episodio pubblicato, usando `SxxExx`, titolo e la rotta `watching?s={s}&e={e}`.
-4. Le stagioni che superano `numberOfSeasons` e gli episodi oltre `numberOfEpisodes` vengono esclusi: questo evita di mostrare le voci provvisorie `Episodio N` della seconda stagione di Black Doves.
-5. Se l'URL incollato è una pagina `/watching`, l'app torna alla pagina titolo per leggere il catalogo completo.
+1. `extractNextFlightPayload` decodifica i chunk `self.__next_f.push([1, ...])` di Next.js.
+2. `extractStreamingCommunityFlightCatalog` individua l'oggetto della serie prima di leggere i conteggi, evitando di prendere quelli delle schede consigliate.
+3. L'array `seasons` è la fonte principale del catalogo.
+4. I conteggi `numberOfSeasons` e `numberOfEpisodes` sono metadati indicativi, non limiti rigidi.
+5. `isUnreleasedPlaceholderSeason` esclude solo stagioni oltre il conteggio dichiarato quando tutte le puntate hanno titoli generici e nessuna trama o immagine.
+6. Gli episodi sono numerati `SxxExx`; numeri mancanti usano la posizione nell'array e i duplicati vengono rimossi.
+7. Le pagine episodio seguono `watching?s={s}&e={e}`.
 
-Le voci catalogo analizzate nel sorgente fornito non contengono l'ID tecnico dell'episodio; il parser non ne inventa uno. La pagina di riproduzione conferma il formato della rotta e l'iframe, ma il server Vidxgo ha restituito 403 nel file condiviso. Per questo la UI disabilita temporaneamente analisi link e download per StreamingCommunity.
+La lettura non può mostrare stagioni che il payload ricevuto non contiene. Per cataloghi caricati da endpoint separati servirà un adattatore aggiuntivo.
+
+Il catalogo di Black Doves nel file fornito non contiene l'ID tecnico episodio. Il player Vidxgo ha restituito HTTP 403; per questo le azioni di analisi link e download StreamingCommunity restano disabilitate.
 
 ## Test
 
-`main_test.go` copre i chunk Next.js, il filtro dei placeholder, la costruzione delle pagine episodio, AnimeUnity, il download di prova e i parser comuni. I test sono simulati; non costituiscono un test live del sito.
+I test coprono i chunk Next.js, conteggi aggregati non aggiornati, filtro dei placeholder, numeri mancanti, deduplicazione, costruzione URL episodio, AnimeUnity e download di prova. I test HTTP sono simulati, non sono prove live di tutti i mirror.
