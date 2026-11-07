@@ -300,3 +300,35 @@ Ogni nuova funzionalità va registrata qui con:
 - eventuali azioni che richiedono l'utente.
 
 Le attività completate non vanno cancellate: si aggiornano con link al branch/PR e data di verifica.
+
+
+## 10. Diario avanzamento
+
+### 7 novembre 2026 — roadmap e base frontend 4.6.0
+
+**Completato nella branch `roadmap`:**
+- Roadmap di prodotto e tecnica formalizzata.
+- Decisioni confermate: tracking locale, StreamingCommunity + AnimeUnity, sincronizzazione ogni 24 ore.
+- Regole di contribuzione, branching, versionamento e test.
+- ADR-0001 per la direzione Go + React/TypeScript + Electron + persistenza locale.
+- Audit che distingue sorgente effettivamente disponibile, codice pubblicato su GitHub e test live non verificati.
+
+**Implementazione iniziale in branch separati:**
+- `feature/4.6.0-web-frontend-foundation`: base React/TypeScript/Vite, tipi API, client REST e shell UI dark. Esplora e watchlist sono collegate agli endpoint tracker esistenti; Download e Libreria sono schermate di transizione.
+- `fix/4.6.0-web-front-end-stability`: callback di ricerca stabilizzate (nessuna richiesta a ogni tasto), rimossa la richiesta di Google Fonts esterna, font di sistema per uso locale/offline.
+- ADR-0002 documenta il bootstrap del frontend.
+
+**Da fare prima di dichiarare completata la 4.6.0:**
+- Importare il sorgente Go/Electron 4.5.0 completo nella repository come base canonica, inclusi test e documentazione.
+- Collegare il server Go alla build `web/dist` e fissare una modalità development con porta configurabile.
+- Integrare e verificare le API esistenti dopo un clone pulito.
+- Eseguire typecheck/build del frontend in GitHub Actions; la build locale non è stata eseguita in questa sessione perché il registro npm non era raggiungibile.
+- Verificare il flusso desktop Electron sulla UI nuova.
+
+**Non ancora verificato:**
+- sincronizzazione live e copertura effettiva dei cataloghi su Windows;
+- download live su Dailymotion o altra sorgente esterna autorizzata;
+- generazione del portable EXE Electron e installer Windows;
+- web deployment.
+
+Queste funzionalità non vanno segnate come completate finché non esistono test riproducibili e prove reali registrate.
